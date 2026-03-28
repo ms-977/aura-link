@@ -1,0 +1,18 @@
+touch .gitignore
+```
+
+Open it in VS Code and paste this:
+```
+# Python
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+
+# Node
+frontend/node_modules/
+frontend/.next/
+
+# Environment
+.env
+.env.local
