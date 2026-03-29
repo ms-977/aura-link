@@ -56,9 +56,51 @@ cd aura-link
 cd backend
 python3 -m venv venv
 source venv/bin/activate
-pip install fastapi uvicorn
+pip install -r requirements.txt
+
+# Set your Gemini API key
+cp .env.example .env
+set -a
+source .env
+set +a
+
+# Run API
 uvicorn main:app --reload
 
 # API docs available at
 http://127.0.0.1:8000/docs
 ```
+
+## First API Call
+
+```bash
+curl -X POST http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.0-flash",
+    "messages": [
+      {"role": "user", "content": "Give me one sentence about Aura-Link."}
+    ],
+    "temperature": 0.7
+  }'
+```
+
+## Gemini -> Local Fallback (Ollama)
+
+Aura-Link now uses Gemini as the primary provider and can automatically fall back to a local Ollama model when Gemini fails (for example on quota/rate limits).
+
+1. Install Ollama and pull a small model:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+2. Keep these values in `backend/.env`:
+
+```env
+ENABLE_LOCAL_FALLBACK=true
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:3b
+```
+
+3. Run the same `/v1/chat/completions` request. If Gemini returns 429/5xx, Aura-Link will return a response from local Ollama instead.
